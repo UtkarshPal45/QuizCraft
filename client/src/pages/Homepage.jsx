@@ -44,7 +44,7 @@ function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-white shadow-md pb-1">
+      <footer className="bg-white shadow-md pb-1 -mt-3">
         <div className="container mx-auto px-6 text-center text-gray-600">
           <p>&copy; 2023 QuizCraft. All rights reserved.</p>
         </div>
