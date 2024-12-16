@@ -17,8 +17,12 @@ function Navbar() {
             <Link to="/daily" className="hover:text-purple-600">Daily Quiz</Link>
           </li>
           <li className="flex space-x-2">
-            <CustomButton variant="outline">Login</CustomButton>
-            <CustomButton>Sign Up</CustomButton>
+            <Link to="/login">
+              <CustomButton variant="outline">Login</CustomButton>
+            </Link>
+            <Link to="/signup">
+              <CustomButton>Sign Up</CustomButton>
+            </Link>
           </li>
         </ul>
       </nav>

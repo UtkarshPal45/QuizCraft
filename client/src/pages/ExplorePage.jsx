@@ -27,9 +27,12 @@ function ExplorePage() {
   }, []);
 
   useEffect(() => {
+    // eventually pass these params to backend and fetch respective quizzes 
     const results = quizzes.filter(quiz =>
       quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (selectedCategories.length === 0 || selectedCategories.includes(quiz.category)) &&
+      // alter categories filter to handle multiple categories 
+      //also see that name is exact in both filters and database
+      (selectedCategories.length === 0 || selectedCategories.includes(quiz.categories)) &&
       (selectedDifficulty === '' || quiz.difficulty === selectedDifficulty)
     );
     setFilteredQuizzes(results);
