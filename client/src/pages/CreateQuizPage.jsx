@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Minus, Check, Search } from 'lucide-react';
 import categories from '../lib/categories';
-import apiRequest from '../lib/apiRequest';
+import apiRequest from '../lib/apiRequest'; // Import apiRequest
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 
@@ -16,6 +16,7 @@ function CreateQuizPage() {
   });
 
   const [categorySearch, setCategorySearch] = useState('');
+  const [showPopup, setShowPopup] = useState(false); // Added state for popup
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,13 +58,26 @@ function CreateQuizPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Updated handleSubmit
     e.preventDefault();
-    const submitQuiz = async ()=>{
+    try {
       const response = await apiRequest.post('/quiz/create', quizData)
-      console.log("quiz submitted")
+      setShowPopup(true);
+    } catch (error) {
+      console.log(error)
     }
-    submitQuiz()
+  };
+
+  const handleClosePopup = () => { // Added handleClosePopup function
+    setShowPopup(false);
+    setQuizData({
+      title: '',
+      description: '',
+      categories: [],
+      difficulty: '',
+      questions: [{ question: '', options: ['', '', '', ''], correctOption: '' }],
+      timeLimit: 15,
+    });
   };
 
   const isFormValid = () => {
@@ -82,7 +96,7 @@ function CreateQuizPage() {
   };
 
   return (
-    <div className="container mt-16 mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8 text-purple-800">Create a New Quiz</h1>
       
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
@@ -149,7 +163,7 @@ function CreateQuizPage() {
           </div>
 
           <div>
-            <div className="">
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Categories (Select up to 6)</label>
               <div className="relative">
                 <input
@@ -161,7 +175,7 @@ function CreateQuizPage() {
                 />
                 <Search className="absolute right-2 top-2 text-gray-400" size={20} />
               </div>
-              <div className="max-h-64 overflow-y-auto border rounded-md p-2">
+              <div className="max-h-48 overflow-y-auto border rounded-md p-2">
                 {categories
                   .filter(category => category.toLowerCase().includes(categorySearch.toLowerCase()))
                   .map(category => (
@@ -247,6 +261,19 @@ function CreateQuizPage() {
           Create Quiz
         </button>
       </form>
+      {showPopup && ( // Added popup component
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Quiz Submitted Successfully</h2>
+            <button
+              onClick={handleClosePopup}
+              className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
