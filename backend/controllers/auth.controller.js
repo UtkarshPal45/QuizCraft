@@ -11,8 +11,12 @@ export const login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid email or password.' });
       }
       
-      const token = jwt.sign({id: user.id} , process.env.JWT_SECURITY_KEY, {expiresIn: '1d'})
-      res.cookie('token', token, { httpOnly: true }).json({ message: 'Login successful.' });
+      const token = jwt.sign({id: user._id} , process.env.JWT_SECURITY_KEY, {expiresIn: '1d'})
+      const userObj = user.toObject();
+      const { password: _, ...userInfo } = userObj;
+      res
+        .cookie('token', token, { httpOnly: true })
+        .json(userInfo);
     } catch (err) {
       res.status(500).json({ message: 'Error logging in.' });
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Minus, Check, Search } from 'lucide-react';
 import categories from '../lib/categories';
+import apiRequest from '../lib/apiRequest';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 
@@ -10,7 +11,8 @@ function CreateQuizPage() {
     description: '',
     difficulty: '',
     categories: [],
-    questions: [{ question: '', options: ['', '', '', ''], correctOption: '' }]
+    questions: [{ question: '', options: ['', '', '', ''], correctOption: '' }],
+    timeLimit: 15 //default
   });
 
   const [categorySearch, setCategorySearch] = useState('');
@@ -57,9 +59,11 @@ function CreateQuizPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the quizData to your backend
-    console.log('Quiz Data:', quizData);
-    // Reset form or redirect user after successful submission
+    const submitQuiz = async ()=>{
+      const response = await apiRequest.post('/quiz/create', quizData)
+      console.log("quiz submitted")
+    }
+    submitQuiz()
   };
 
   const isFormValid = () => {
@@ -72,12 +76,13 @@ function CreateQuizPage() {
         q.question && 
         q.options.every(opt => opt.trim() !== '') &&
         q.correctOption
-      )
+      ) && 
+      quizData.timeLimit
     );
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mt-16 mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8 text-purple-800">Create a New Quiz</h1>
       
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
@@ -109,6 +114,20 @@ function CreateQuizPage() {
             </div>
 
             <div className="mb-6">
+              <label htmlFor="timeLimit" className="block text-sm font-medium text-gray-700 mb-2">Time Limit (minutes)</label>
+              <input
+                type="number"
+                id="timeLimit"
+                name="timeLimit"
+                value={quizData.timeLimit}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
+                min="1"
+                required
+              />
+            </div>
+
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
               <div className="flex space-x-4">
                 {DIFFICULTIES.map(difficulty => (
@@ -130,7 +149,7 @@ function CreateQuizPage() {
           </div>
 
           <div>
-            <div className="mb-6">
+            <div className="">
               <label className="block text-sm font-medium text-gray-700 mb-2">Categories (Select up to 6)</label>
               <div className="relative">
                 <input
@@ -142,7 +161,7 @@ function CreateQuizPage() {
                 />
                 <Search className="absolute right-2 top-2 text-gray-400" size={20} />
               </div>
-              <div className="max-h-48 overflow-y-auto border rounded-md p-2">
+              <div className="max-h-64 overflow-y-auto border rounded-md p-2">
                 {categories
                   .filter(category => category.toLowerCase().includes(categorySearch.toLowerCase()))
                   .map(category => (

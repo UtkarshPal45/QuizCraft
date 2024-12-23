@@ -2,7 +2,7 @@ import Quiz from "../models/quiz.model.js"
 import User from "../models/user.model.js"
 
 export const getQuizzes = async (req, res) => {
-    const { searchTerm, selectedCategories, difficulty } = req.query;
+    const { searchTerm, selectedCategories, difficulty, currentPage, quizzesPerPage } = req.query;
   
     try {
       const query = {};
@@ -19,8 +19,23 @@ export const getQuizzes = async (req, res) => {
         query.difficulty = difficulty; 
       }
   
-      const quizzes = await Quiz.find(query);
-      res.json(quizzes);
+      // Calculate the number of quizzes to skip
+      const skip = (currentPage - 1) * quizzesPerPage;
+      
+      const quizzes = await Quiz.find(query)
+            .skip(skip)
+            .limit(parseInt(quizzesPerPage));
+
+      const totalQuizzes = await Quiz.countDocuments(query);
+
+      // const quizzes = await Quiz.find(query);
+      // res.json(quizzes);
+      res.json({
+        quizzes,
+        totalQuizzes,
+        totalPages: Math.ceil(totalQuizzes / quizzesPerPage),
+        currentPage: parseInt(currentPage)
+      });
     } catch (err) {
       res.status(500).json({ message: "Error fetching quizzes.", error: err.message });
     }

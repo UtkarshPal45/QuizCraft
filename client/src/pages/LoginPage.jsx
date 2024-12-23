@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiRequest from '../lib/apiRequest';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const {updateUser} =useContext(AuthContext)
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -16,10 +19,20 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the login logic
-    console.log('Login submitted', formData);
+    
+    try {
+      const response = await apiRequest.post('/auth/login', formData)
+      console.log(response.data)
+      localStorage.setItem('token', response.data.token);
+      console.log(response.data)
+      updateUser(response.data)
+      navigate("/")
+    } catch (error) {
+      console.log(error)
+    }
+    
   };
 
   return (

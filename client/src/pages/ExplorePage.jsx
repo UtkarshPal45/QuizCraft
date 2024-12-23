@@ -4,47 +4,50 @@ import categories  from '../lib/categories';
 import quizData from '../dummydata';
 import QuizCard from '../components/QuizCard';
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+import apiRequest from '../lib/apiRequest';
 
 function ExplorePage() {
   const [quizzes, setQuizzes] = useState([]);
-  const [filteredQuizzes, setFilteredQuizzes] = useState([]);
+  //const [filteredQuizzes, setFilteredQuizzes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [quizzesPerPage] = useState(9);
+  const [totalPages,setTotalPages] = useState(1)
+
+  const fetchData = async ()=>{
+    const baseUrl = '/quiz'
+    const queryParams = new URLSearchParams();
+
+    if (searchTerm) queryParams.append('searchTerm', searchTerm);
+    if (selectedCategories && selectedCategories.length > 0) {
+      queryParams.append('selectedCategories', selectedCategories.join(','));
+    }
+    if (selectedDifficulty) queryParams.append('difficulty',selectedDifficulty);
+    if (currentPage) queryParams.append('currentPage', currentPage);
+    if (quizzesPerPage) queryParams.append('quizzesPerPage', quizzesPerPage);
+    
+    const finalUrl = `${baseUrl}?${queryParams.toString()}`
+
+    const response = await apiRequest(finalUrl);
+    const data = response.data;
+    setQuizzes(data.quizzes)
+    setTotalPages(data.totalPages)
+    setCurrentPage(1);
+  }
+
 
   useEffect(() => {
-    const fetchQuizzes = async () => {
-    //   const response = await fetch('https://api.example.com/quizzes');
-    //   const data = await response.json();
-      setQuizzes(quizData);
-      setFilteredQuizzes(quizData);
-    };
-
-    fetchQuizzes();
+    fetchData()
   }, []);
 
   useEffect(() => {
-    // eventually pass these params to backend and fetch respective quizzes 
-    const results = quizzes.filter(quiz =>
-      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      // alter categories filter to handle multiple categories 
-      //also see that name is exact in both filters and database
-      (selectedCategories.length === 0 || selectedCategories.includes(quiz.categories)) &&
-      (selectedDifficulty === '' || quiz.difficulty === selectedDifficulty)
-    );
-    setFilteredQuizzes(results);
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategories, selectedDifficulty, quizzes]);
+    fetchData();
+  }, [searchTerm, selectedCategories, selectedDifficulty, currentPage]);
 
-  const indexOfLastQuiz = currentPage * quizzesPerPage;
-  const indexOfFirstQuiz = indexOfLastQuiz - quizzesPerPage;
-  const currentQuizzes = filteredQuizzes.slice(indexOfFirstQuiz, indexOfLastQuiz);
-
-  const totalPages = Math.ceil(filteredQuizzes.length / quizzesPerPage);
-
+ 
   const paginate = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
@@ -152,7 +155,7 @@ function ExplorePage() {
 
           {/* Quiz Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentQuizzes.map(quiz => (
+            {quizzes.map(quiz => (
               <QuizCard quiz={quiz}/>
             ))}
           </div>

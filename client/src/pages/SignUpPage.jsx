@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiRequest from '../lib/apiRequest';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -17,10 +18,14 @@ export default function SignupPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the signup logic
-    console.log('Signup submitted', formData);
+    try {
+      const response = await apiRequest.post('/auth/signup',formData)
+      navigate('/login')
+    } catch (error) {
+      console.log("error in signup", error)
+    }
   };
 
   return (
