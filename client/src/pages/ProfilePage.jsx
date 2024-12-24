@@ -1,33 +1,59 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Edit, Trophy, Book, Trash2 } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
+import apiRequest from '../lib/apiRequest'
 
-// Mock data for demonstration
-const user = {
-  username: 'quizmaster123',
-  email: 'quizmaster@example.com',
-  avatar: '/placeholder.svg?height=100&width=100',
-  joinDate: '2023-01-15',
-  bio: 'Passionate about creating and taking quizzes! Always learning and sharing knowledge.',
-  quizzesCreated: [
-    { id: 1, title: 'History Trivia', plays: 150 },
-    { id: 2, title: 'Science Quiz', plays: 89 },
-    { id: 3, title: 'Pop Culture Challenge', plays: 203 },
-  ],
-  quizzesTaken: [
-    { id: 4, title: 'Geography Explorer', score: '8/10', date: '2023-06-10' },
-    { id: 5, title: 'Math Wizardry', score: '7/10', date: '2023-06-08' },
-    { id: 6, title: 'Literature Legends', score: '9/10', date: '2023-06-05' },
-  ],
-};
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const {currentUser} = useContext(AuthContext)
+  const [user,setUser] = useState({
+    avatar: '',
+    username: '',
+    email: '',
+    joinDate: '',
+    bio: '',
+    quizzesCreated: [],
+    quizzesTaken: [],
+  })
 
-  const handleDeleteQuiz = (quizId) => {
-    // Here you would typically send a request to your backend to delete the quiz
-    console.log(`Deleting quiz with id: ${quizId}`);
-    // Then update the local state or refetch the user data
+  const fetchData = async()=>{
+    const res = await apiRequest.get('/user/profile');
+    const data = res.data;
+    setUser({
+      ...data,
+      quizzesCreated: data.quizzesCreated || [],
+      quizzesTaken: data.quizzesTaken || [],
+    });
+  }
+
+  useEffect(()=>{
+    fetchData()
+  },[])
+
+
+  const handleDeleteQuiz = async (quizId) => {
+    try {
+      const confirmed = window.confirm("Are you sure you want to delete this quiz?");
+      if (!confirmed) return;
+  
+      const response = await apiRequest.delete(`/quiz/delete/${quizId}`);
+      if (response.status === 200) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          quizzesCreated: prevUser.quizzesCreated.filter((quiz) => quiz.id !== quizId),
+        }));
+        fetchData()
+        alert("Quiz deleted successfully!");
+
+      } else {
+        alert("Failed to delete the quiz. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      alert("An error occurred while deleting the quiz.");
+    }
   };
 
   return (
@@ -51,7 +77,7 @@ function ProfilePage() {
             <p className="text-gray-700">{user.bio}</p>
           </div>
           <button
-            onClick={() => navigate('/update-profile')}
+            onClick={() => navigate('/profile/update')}
             className="w-full bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition duration-200 flex items-center justify-center"
           >
             <Edit className="w-4 h-4 mr-2" />
@@ -67,12 +93,12 @@ function ProfilePage() {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
               <ul className="space-y-2">
                 {user.quizzesCreated.map((quiz) => (
-                  <li key={quiz.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+                  <li key={quiz._id} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
                     <span>{quiz.title}</span>
                     <div className="flex items-center">
                       <span className="text-sm text-gray-500 mr-4">{quiz.plays} plays</span>
                       <button
-                        onClick={() => handleDeleteQuiz(quiz.id)}
+                        onClick={() => handleDeleteQuiz(quiz._id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -90,14 +116,23 @@ function ProfilePage() {
             </h2>
             <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
               <ul className="space-y-2">
-                {user.quizzesTaken.map((quiz) => (
-                  <li key={quiz.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
-                    <span>{quiz.title}</span>
+                {user.quizzesTaken.length>0 && user.quizzesTaken.map((quiz) => (
+                  quiz.quiz && quiz.quiz.title ? (
+                  <li key={quiz._id} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+                    <span>{quiz.quiz.title}</span>
                     <div className="text-sm">
-                      <span className="text-green-600 font-semibold mr-2">{quiz.score}</span>
-                      <span className="text-gray-500">{quiz.date}</span>
+                      <span className="text-green-600 font-semibold mr-2">{quiz.score}/{quiz.totalQuestions}</span>
+                      <span className="text-gray-500">
+                          {new Date(quiz.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            })
+                          }
+                      </span>
                     </div>
                   </li>
+                  ) : null
                 ))}
               </ul>
             </div>

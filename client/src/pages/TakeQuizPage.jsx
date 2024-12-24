@@ -34,8 +34,8 @@ function TakeQuizPage() {
   }, [id]);
 
 
-  const handleAnswerSelect = (questionId, option) => {
-    setSelectedAnswers({ ...selectedAnswers, [questionId]: option });
+  const handleAnswerSelect = (questionId, index) => {
+    setSelectedAnswers({ ...selectedAnswers, [questionId]: index});
   };
 
   const handleClearSelection = (questionId) => {
@@ -53,7 +53,8 @@ function TakeQuizPage() {
   const handleSubmit = async () => {
     //calculate score
     const score = quizQuestions.reduce((acc, question) => {
-      if (selectedAnswers[question.id] === question.correctAnswer) {
+      const selectedAnswer = selectedAnswers[question._id];
+      if (selectedAnswer !== undefined && selectedAnswer === question.correctOption) {
         return acc + 1;
       }
       return acc;
@@ -93,7 +94,7 @@ function TakeQuizPage() {
                   className={`p-2 rounded-md ${
                     currentQuestion === index
                       ? 'bg-purple-600 text-white'
-                      : selectedAnswers[quizQuestions[index].id]
+                      : selectedAnswers[quizQuestions[index]._id]
                       ? 'bg-purple-100 text-purple-800'
                       : 'bg-white text-gray-800 border'
                   }`}
@@ -114,10 +115,10 @@ function TakeQuizPage() {
                     <label key={index} className="flex items-center p-3 bg-white border rounded-md hover:bg-gray-50 transition-colors duration-150">
                       <input
                         type="radio"
-                        name={`question-${quizQuestions[currentQuestion].id}`}
+                        name={`question-${quizQuestions[currentQuestion]._id}`}
                         value={option}
-                        checked={selectedAnswers[quizQuestions[currentQuestion].id] === option}
-                        onChange={() => handleAnswerSelect(quizQuestions[currentQuestion].id, option)}
+                        checked={selectedAnswers[quizQuestions[currentQuestion]._id] === index}
+                        onChange={() => handleAnswerSelect(quizQuestions[currentQuestion]._id, index)}
                         className="mr-3"
                       />
                       {option}

@@ -91,6 +91,7 @@ export const submitQuiz = async (req, res) => {
       user.quizzesTaken.push({
         quiz: quiz._id,
         score,
+        totalQuestions: quiz.questions.length,  //addded total score
         date: new Date(),
       });
       await user.save();
@@ -109,3 +110,31 @@ export const submitQuiz = async (req, res) => {
       res.status(500).json({ message: 'Error submitting quiz attempt.', error: err.message });
     }
   };
+
+export const deleteQuiz = async (req,res) =>{
+  const { id: quizId } = req.params;
+  const userId = req.user.id;  //from auth middleware
+
+  try {
+    const quiz = await Quiz.findById(quizId);
+
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found.' });
+    }
+
+    if (quiz.creator.toString() !== userId) {
+      return res.status(403).json({ message: 'Unauthorized to delete this quiz.' });
+    }
+
+    // Remove the quiz from the quizzesCreated array in the User document
+    await User.findByIdAndUpdate(userId, { $pull: { quizzesCreated: quizId } });
+
+    // Delete the quiz
+    await Quiz.findByIdAndDelete(quizId);
+
+    res.status(200).json({ message: 'Quiz deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting quiz:', error);
+    res.status(500).json({ message: 'An error occurred while deleting the quiz.' });
+  }
+}

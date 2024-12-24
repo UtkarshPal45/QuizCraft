@@ -30,9 +30,9 @@ export default function QuizCard({quiz}) {
                   </button>
                   <div className="flex items-center text-gray-500 text-sm">
                     <Clock className="w-4 h-4 mr-1" />
-                    <span>{quiz.duration} mins</span>
+                    <span>{quiz.timeLimit} mins</span>
                     <Book className="w-4 h-4 ml-3 mr-1" />
-                    <span>{quiz.questionCount} Qs</span>
+                    <span>{quiz.questions.length} Qs</span>
                   </div>
              </div>
     </div>

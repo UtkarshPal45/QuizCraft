@@ -1,36 +1,24 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Calendar, MapPin, Camera } from 'lucide-react';
-import { AsyncPaginate } from 'react-select-async-paginate';
-
-// Mock initial user data
-const initialUserData = {
-  username: 'quizmaster123',
-  email: 'quizmaster@example.com',
-  avatar: '/placeholder.svg?height=100&width=100',
-  birthdate: '1990-01-01',
-  city: null,
-  bio: 'Passionate about creating and taking quizzes!',
-};
-
-// City search function (replace with actual API call in a real application)
-const loadCityOptions = async (inputValue) => {
-  // This is a mock function. In a real app, you'd call an API here.
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-  return {
-    options: [
-      { value: 'new-york', label: 'New York, USA' },
-      { value: 'london', label: 'London, UK' },
-      { value: 'paris', label: 'Paris, France' },
-      { value: 'tokyo', label: 'Tokyo, Japan' },
-      { value: 'sydney', label: 'Sydney, Australia' },
-    ].filter(city => city.label.toLowerCase().includes(inputValue.toLowerCase())),
-    hasMore: false,
-  };
-};
+import { User, Mail, Camera, Lock } from 'lucide-react';
+import apiRequest from '../lib/apiRequest';
+import { AuthContext } from '../context/AuthContext';
 
 function UpdateProfilePage() {
+
+  const {currentUser,updateUser}= useContext(AuthContext)
+  const initialUserData = {
+    username: currentUser.username,
+    email: currentUser.email,
+    avatar: currentUser.avatar,
+    bio:currentUser.bio,
+  };
+
+
   const [userData, setUserData] = useState(initialUserData);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -38,25 +26,63 @@ function UpdateProfilePage() {
     setUserData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  const handleCityChange = (selectedOption) => {
-    setUserData(prevData => ({ ...prevData, city: selectedOption }));
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setPasswordError('');
   };
 
-  const handleAvatarChange = (e) => {
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setPasswordError('');
+  };
+
+  const handleAvatarChange = async (e) => {
+    console.log("yus")
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserData(prevData => ({ ...prevData, avatar: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      const cloudName = 'dffzh8blg'
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'QuizCraft'); // Replace with your Cloudinary upload preset
+      formData.append('cloud_name',cloudName)
+
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+        const data = await response.json();
+        console.log(data.url)
+        setUserData(prevData => ({ ...prevData, avatar: data.url }));
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Updated user data:', userData);
-    navigate('/profile');
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords don't match");
+      return;
+    }
+
+    try {
+      const updatedData = { ...userData };
+      if (password) {
+        updatedData.password = password;
+      }
+      
+      const response = await apiRequest.put('/user/profile/update', updatedData);   
+      updateUser(response.data)  
+      navigate('/profile');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   return (
@@ -78,7 +104,7 @@ function UpdateProfilePage() {
               <input
                 id="avatar-upload"
                 type="file"
-                accept="image/*"
+                // accept="image/*"
                 className="hidden"
                 onChange={handleAvatarChange}
               />
@@ -115,36 +141,33 @@ function UpdateProfilePage() {
             </div>
           </div>
           <div>
-            <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-1">Birthdate</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
             <div className="relative">
-              <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
-                type="date"
-                id="birthdate"
-                name="birthdate"
-                value={userData.birthdate}
-                onChange={handleInputChange}
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={handlePasswordChange}
                 className="pl-10 w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
             </div>
           </div>
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
             <div className="relative">
-              <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-3 z-10" />
-              <AsyncPaginate
-                value={userData.city}
-                loadOptions={loadCityOptions}
-                onChange={handleCityChange}
-                placeholder="Search for a city..."
-                additional={{
-                  page: 1,
-                }}
-                classNames={{
-                  control: (state) => 'pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300',
-                }}
+              <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                className="pl-10 w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
             </div>
+            {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
           </div>
           <div className="md:col-span-2">
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
@@ -168,6 +191,7 @@ function UpdateProfilePage() {
             <button
               type="submit"
               className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200"
+              onClick={handleSubmit}
             >
               Save Changes
             </button>

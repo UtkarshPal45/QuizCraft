@@ -96,7 +96,7 @@ function CreateQuizPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mt-16 mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8 text-purple-800">Create a New Quiz</h1>
       
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">

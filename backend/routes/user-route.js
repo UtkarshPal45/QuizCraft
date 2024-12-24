@@ -4,8 +4,8 @@ import authenticateUser from "../middleware/authenticateUser.js"
 
 const userRouter = Router();
 
-userRouter.get('/',authenticateUser, getUserProfile)
-userRouter.put('/update',authenticateUser, updateUserProfile)
+userRouter.get('/profile',authenticateUser, getUserProfile)
+userRouter.put('/profile/update',authenticateUser, updateUserProfile)
 
 
 export default userRouter

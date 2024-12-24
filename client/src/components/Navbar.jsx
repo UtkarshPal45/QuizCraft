@@ -8,15 +8,12 @@ function Navbar() {
   const {currentUser, updateUser} = useContext(AuthContext)
 
   const logout = async ()=>{
-    //logic here
     try {
       const res= await apiRequest.post('/auth/logout')
       updateUser(null)
     } catch (error) {
       console.log(error)
     }
-    
-    
   }
   
   return (
@@ -35,7 +32,12 @@ function Navbar() {
               <>
                 <Link to="/profile" className="flex items-center">
                   <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold mr-2">
-                    {currentUser.username.charAt(0)}
+                    {currentUser.avatar ? (
+                        <img src={currentUser.avatar} alt={currentUser.username} className="w-full h-full object-cover rounded-full" />
+                      ) : (
+                        currentUser.username.charAt(0)
+                      )
+                    }
                   </div>
                   <span className="text-purple-800 font-medium">{currentUser.username}</span>
                 </Link>

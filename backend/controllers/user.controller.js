@@ -4,14 +4,8 @@ export const getUserProfile = async (req, res) => {
     try {
       const user = await User.findById(req.user.id)
       .select('-password')
-      .populate({
-        path:"quizzesCreated",
-        select:"title plays"
-      })
-      .populate({
-        path:"quizzesTaken.quiz",
-        select:"title"
-      })
+      .populate('quizzesCreated', 'title plays')
+      .populate('quizzesTaken.quiz','title')
       
       if (!user) return res.status(404).json({ message: 'User not found.' });
       res.json(user);
@@ -43,7 +37,9 @@ export const updateUserProfile = async (req, res) => {
       user.bio = bio || user.bio;
   
       await user.save();
-      res.json({ message: 'Profile updated successfully.', user });
+      
+      const { password: userPassword, ...userDataWithoutPassword } = user.toObject();
+      res.json( userDataWithoutPassword);
     } catch (err) {
       res.status(500).json({ message: 'Error updating profile.' });
     }

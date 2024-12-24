@@ -24,9 +24,9 @@ export default function LoginPage() {
     
     try {
       const response = await apiRequest.post('/auth/login', formData)
-      console.log(response.data)
-      localStorage.setItem('token', response.data.token);
-      console.log(response.data)
+      
+      // localStorage.setItem('token', response.data.token);
+      
       updateUser(response.data)
       navigate("/")
     } catch (error) {

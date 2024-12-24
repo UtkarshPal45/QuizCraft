@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignUpPage';
 import ProfilePage from './pages/ProfilePage';
 import UpdateProfilePage from './pages/UpdateProfilePage';
+import DailyQuizPage from './pages/DailyQuizPage';
 import {Layout, RequireAuth} from './layout/Layout';
 
 function App() {
@@ -37,6 +38,10 @@ function App() {
         {
           path:"/quiz-detail/:id",
           element:<QuizDetailsPage/>
+        },
+        {
+          path:"/daily",
+          element:<DailyQuizPage/>
         }
 
       ]

@@ -2,6 +2,7 @@ import React from 'react';
 import { Brain, Users, PenTool, Zap } from 'lucide-react';
 import CustomButton from '../components/CustomButton';
 import FeatureCard from '../components/FeatureCard';
+import { Link } from 'react-router-dom';
 
 
 function HomePage() {
@@ -13,8 +14,12 @@ function HomePage() {
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-purple-800 leading-tight">Craft Your Knowledge, Quiz by Quiz</h1>
           <p className="text-xl md:text-2xl mb-10 text-gray-600 max-w-3xl mx-auto leading-relaxed">Join our community of learners and creators. Revise concepts, learn new terms, and contribute your own quizzes.</p>
           <div className="flex justify-center space-x-4">
-            <CustomButton size="lg">Start Quizzing</CustomButton>
-            <CustomButton size="lg" variant="outline">Create a Quiz</CustomButton>
+            <Link to='/explore'>
+              <CustomButton size="lg">Start Quizzing</CustomButton>
+            </Link>
+            <Link to='/create-quiz'>
+              <CustomButton size="lg" variant="outline">Create a Quiz</CustomButton>
+            </Link>
           </div>
         </section>
 

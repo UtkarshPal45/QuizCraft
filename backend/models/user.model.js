@@ -6,13 +6,14 @@ const userSchema = new Schema(
         username: {type:String, required:true, unique:true},
         email: {type:String, required:true, unique:true},
         password: { type: String, required: true },
-        avatar: { type: String, default: '/placeholder.svg?height=100&width=100' },
+        avatar: { type: String, default: '' },
         bio: { type: String, default: '' },
         joinDate: { type: Date, default: Date.now },
         quizzesCreated: [{ type: Schema.Types.ObjectId, ref: 'Quiz' }],
         quizzesTaken: [{
             quiz: { type: Schema.Types.ObjectId, ref: 'Quiz' },
             score: Number,
+            totalQuestions: Number,
             date: { type: Date, default: Date.now }
         }]
     }
