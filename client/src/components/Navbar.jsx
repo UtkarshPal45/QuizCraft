@@ -6,13 +6,12 @@ import apiRequest from '../lib/apiRequest';
 
 function Navbar() {
   const {currentUser, updateUser} = useContext(AuthContext)
-  console.log(currentUser)
+
   const logout = async ()=>{
     //logic here
     try {
       const res= await apiRequest.post('/auth/logout')
       updateUser(null)
-      console.log("logout succesful")
     } catch (error) {
       console.log(error)
     }

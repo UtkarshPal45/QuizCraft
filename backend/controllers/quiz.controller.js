@@ -79,8 +79,7 @@ export const createQuiz = async (req, res) => {
   };
 
 export const submitQuiz = async (req, res) => {
-    //const { quizId, username } = req.params; 
-    const { quizId, username, answers } = req.body; 
+    const { quizId, username, score } = req.body; 
   
     try {
       const quiz = await Quiz.findById(quizId);
@@ -89,13 +88,6 @@ export const submitQuiz = async (req, res) => {
       const user = await User.findOne({username});
       if (!user) return res.status(404).json({ message: 'User not found.' });
   
-      // Calculate the score
-      let score = 0;
-      quiz.questions.forEach((q, i) => {
-        if (answers[i] === q.correctOption) score++;
-      });
-  
-      // Update the user's quizzesTaken
       user.quizzesTaken.push({
         quiz: quiz._id,
         score,

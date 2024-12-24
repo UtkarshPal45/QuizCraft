@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Minus, Check, Search } from 'lucide-react';
 import categories from '../lib/categories';
-import apiRequest from '../lib/apiRequest'; // Import apiRequest
+import apiRequest from '../lib/apiRequest'; 
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 
@@ -16,7 +16,7 @@ function CreateQuizPage() {
   });
 
   const [categorySearch, setCategorySearch] = useState('');
-  const [showPopup, setShowPopup] = useState(false); // Added state for popup
+  const [showPopup, setShowPopup] = useState(false); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +58,7 @@ function CreateQuizPage() {
     }));
   };
 
-  const handleSubmit = async (e) => { // Updated handleSubmit
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     try {
       const response = await apiRequest.post('/quiz/create', quizData)

@@ -1,24 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Clock, Book } from 'lucide-react';
+import apiRequest from '../lib/apiRequest';
 
 function QuizDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // In a real application, you would fetch the quiz details using the id
-  const quizDetails = {
-    id: id,
-    title: 'Sample Quiz',
-    description: 'This is a sample quiz description. It covers various topics and is designed to test your knowledge on different subjects.',
-    difficulty: 'Medium',
-    categories: ['Science', 'History'],
-    questionCount: 10,
-    duration: 15, // in minutes
-  };
+  const [quizDetails,setQuizDetails] =useState({})
+  useEffect(()=>{
+    const fetchData = async ()=>{
+      const res = await apiRequest.get(`/quiz/${id}`)
+      setQuizDetails(res.data)
+    }
+    fetchData()
+  },[id])
 
   const handleStartQuiz = () => {
-    navigate(`/quiz/${id}/take`);
+    navigate(`/take-quiz/${id}`);
   };
 
   return (
@@ -41,7 +40,7 @@ function QuizDetailsPage() {
           <div className="flex items-center">
             <span className="font-semibold mr-2">Categories:</span>
             <div className="flex flex-wrap gap-1">
-              {quizDetails.categories.map(category => (
+              {(quizDetails.categories || []).map(category => (
                 <span key={category} className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">
                   {category}
                 </span>
@@ -50,11 +49,11 @@ function QuizDetailsPage() {
           </div>
           <div className="flex items-center">
             <Book className="mr-2" />
-            <span>{quizDetails.questionCount} Questions</span>
+            <span>{quizDetails.questions?.length} Questions</span>
           </div>
           <div className="flex items-center">
             <Clock className="mr-2" />
-            <span>{quizDetails.duration} Minutes</span>
+            <span>{quizDetails.timeLimit} Minutes</span>
           </div>
         </div>
         

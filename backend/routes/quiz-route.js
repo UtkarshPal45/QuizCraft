@@ -6,7 +6,7 @@ const quizRouter = Router();
 quizRouter.get('/', getQuizzes)
 quizRouter.get('/:id', getQuizById)
 quizRouter.post('/create',authenticateUser, createQuiz)
-quizRouter.put('/submit',authenticateUser, submitQuiz)
+quizRouter.post('/submit',authenticateUser, submitQuiz)
 
 
 export default quizRouter

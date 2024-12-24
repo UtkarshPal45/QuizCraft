@@ -1,9 +1,15 @@
 import React from 'react'
 import { Clock, Book } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 //change quiz.questionCount & duartion according to schema
 export default function QuizCard({quiz}) {
-  
+  const navigate =useNavigate()
+  const openQuizDetailPage = async ()=>{
+    navigate(`/quiz-detail/${quiz._id}`)
+  }
+
+
   return (
     <div key={quiz.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-purple-100">
         <h3 className="text-xl font-semibold mb-2 text-purple-700">{quiz.title}</h3>
@@ -19,7 +25,7 @@ export default function QuizCard({quiz}) {
                 </span>
             </div>
                 <div className="flex justify-between items-center">
-                  <button className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200 text-sm">
+                  <button onClick={openQuizDetailPage} className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200 text-sm">
                     Start Quiz
                   </button>
                   <div className="flex items-center text-gray-500 text-sm">
