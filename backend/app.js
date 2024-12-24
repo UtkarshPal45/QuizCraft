@@ -6,9 +6,9 @@ import connectDB from "./lib/connectDB.js";
 
 const app= express();
 
-const Frontend_URL = process.env.FRONTEND_URL || "http://localhost:5173" 
+
 app.use(cors({
-    origin: Frontend_URL, // Frontend's URL
+    origin: ["https://frontend.vercel.app"], // Frontend's URL
     credentials: true,              // Allow cookies and credentials
   }))
 app.use(express.json())
