@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Camera, Lock } from 'lucide-react';
+import { User, Mail, Camera, Lock ,Loader} from 'lucide-react';
 import apiRequest from '../lib/apiRequest';
 import { AuthContext } from '../context/AuthContext';
 
@@ -19,6 +19,7 @@ function UpdateProfilePage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -37,9 +38,9 @@ function UpdateProfilePage() {
   };
 
   const handleAvatarChange = async (e) => {
-    console.log("yus")
     const file = e.target.files[0];
     if (file) {
+      setIsUploading(true);
       const cloudName = 'dffzh8blg'
       const formData = new FormData();
       formData.append('file', file);
@@ -59,6 +60,8 @@ function UpdateProfilePage() {
         setUserData(prevData => ({ ...prevData, avatar: data.url }));
       } catch (error) {
         console.error('Error uploading image:', error);
+      }finally{
+        setIsUploading(false);
       }
     }
   };
@@ -97,9 +100,19 @@ function UpdateProfilePage() {
                 alt={userData.username}
                 className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-200"
               />
+              {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-red bg-opacity-50 rounded-full">
+                    <Loader className="w-2 h-8 text-white animate-spin" />
+                  </div>
+                )
+              }
               <label htmlFor="avatar-upload" className="cursor-pointer bg-purple-100 text-purple-600 py-2 px-4 rounded-full hover:bg-purple-200 transition duration-200">
-                <Camera className="w-4 h-4 inline-block mr-2" />
-                Change Avatar
+                {isUploading ? (
+                  <Loader className="w-4 h-4 inline-block mr-2 animate-spin" />
+                  ) : (
+                  <Camera className="w-4 h-4 inline-block mr-2" />)
+                }
+                {isUploading ? 'Uploading...' : 'Change Avatar'}
               </label>
               <input
                 id="avatar-upload"
@@ -107,6 +120,7 @@ function UpdateProfilePage() {
                 // accept="image/*"
                 className="hidden"
                 onChange={handleAvatarChange}
+                disabled={isUploading}
               />
             </div>
           </div>
