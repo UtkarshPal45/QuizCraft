@@ -8,7 +8,7 @@ const app= express();
 
 
 app.use(cors({
-    origin: ["https://frontend.vercel.app"], // Frontend's URL
+    origin: ["https://quiz-craft-client-dun.vercel.app/"], // Frontend's URL
     credentials: true,              // Allow cookies and credentials
   }))
 app.use(express.json())
