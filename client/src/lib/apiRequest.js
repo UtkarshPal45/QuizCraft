@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiRequest=axios.create({
-    baseURL: "https://quiz-craft-api.vercel.app/",
+    baseURL: "https://quizcraft-backend.onrender.com",
     withCredentials: true,
 })
 
