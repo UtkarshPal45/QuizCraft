@@ -15,7 +15,7 @@ export const login = async (req, res) => {
       const userObj = user.toObject();
       const { password: _, ...userInfo } = userObj;
       res
-        .cookie('token', token, { httpOnly: true })
+        .cookie('token', token, { httpOnly: true, secure:true, maxAge:86400000, })
         .json(userInfo);
     } catch (err) {
       res.status(500).json({ message: 'Error logging in.' });
